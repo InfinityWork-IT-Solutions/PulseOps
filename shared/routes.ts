@@ -115,6 +115,12 @@ export const api = {
   },
 };
 
+export type CreateDashboardRequest = z.infer<typeof api.dashboards.create.input>;
+export type UpdateDashboardRequest = z.infer<typeof api.dashboards.update.input>;
+export type CreatePanelRequest = z.infer<typeof api.panels.create.input>;
+export type UpdatePanelRequest = z.infer<typeof api.panels.update.input>;
+export type CreateDataSourceRequest = z.infer<typeof api.dataSources.create.input>;
+
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
   let url = path;
   if (params) {

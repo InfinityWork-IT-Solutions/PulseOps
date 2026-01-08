@@ -100,7 +100,7 @@ export default function DashboardView() {
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-2">Dashboard not found</h2>
             <Link href="/">
-              <Button variant="link">Return to Home</Button>
+              <Button variant="ghost">Return to Home</Button>
             </Link>
           </div>
         </main>
