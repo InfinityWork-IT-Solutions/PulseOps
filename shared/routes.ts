@@ -113,6 +113,24 @@ export const api = {
       },
     },
   },
+  alerts: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/alerts',
+      responses: {
+        200: z.array(z.custom<Alert>()),
+      },
+    },
+    update: {
+      method: 'PATCH' as const,
+      path: '/api/alerts/:id',
+      input: z.object({ status: z.string(), resolvedAt: z.string().optional() }),
+      responses: {
+        200: z.custom<Alert>(),
+        404: errorSchemas.notFound,
+      },
+    },
+  },
 };
 
 export type CreateDashboardRequest = z.infer<typeof api.dashboards.create.input>;
@@ -120,6 +138,8 @@ export type UpdateDashboardRequest = z.infer<typeof api.dashboards.update.input>
 export type CreatePanelRequest = z.infer<typeof api.panels.create.input>;
 export type UpdatePanelRequest = z.infer<typeof api.panels.update.input>;
 export type CreateDataSourceRequest = z.infer<typeof api.dataSources.create.input>;
+import { type Alert } from './schema';
+
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
   let url = path;

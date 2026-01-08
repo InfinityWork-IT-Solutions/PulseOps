@@ -24,6 +24,11 @@ export interface IStorage {
   // Data Sources
   getDataSources(): Promise<DataSource[]>;
   createDataSource(ds: InsertDataSource): Promise<DataSource>;
+
+  // Alerts
+  getAlerts(): Promise<Alert[]>;
+  createAlert(alert: InsertAlert): Promise<Alert>;
+  updateAlert(id: number, updates: Partial<InsertAlert>): Promise<Alert>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -84,6 +89,24 @@ export class DatabaseStorage implements IStorage {
   async createDataSource(insertDataSource: InsertDataSource): Promise<DataSource> {
     const [dataSource] = await db.insert(dataSources).values(insertDataSource).returning();
     return dataSource;
+  }
+
+  // Alerts
+  async getAlerts(): Promise<Alert[]> {
+    return await db.select().from(alerts).orderBy(alerts.createdAt);
+  }
+
+  async createAlert(insertAlert: InsertAlert): Promise<Alert> {
+    const [alert] = await db.insert(alerts).values(insertAlert).returning();
+    return alert;
+  }
+
+  async updateAlert(id: number, updates: Partial<InsertAlert>): Promise<Alert> {
+    const [alert] = await db.update(alerts)
+      .set(updates)
+      .where(eq(alerts.id, id))
+      .returning();
+    return alert;
   }
 }
 
