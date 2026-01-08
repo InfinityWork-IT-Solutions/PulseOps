@@ -23,8 +23,20 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delayDuration={100}>
-        <Toaster />
-        <Router />
+        <div className="min-h-screen bg-background text-foreground flex flex-col">
+          <header className="border-b px-6 py-3 flex items-center justify-between bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+                <div className="w-4 h-4 bg-primary-foreground rounded-sm rotate-45" />
+              </div>
+              <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Lumina</h1>
+            </div>
+          </header>
+          <main className="flex-1">
+            <Toaster />
+            <Router />
+          </main>
+        </div>
       </TooltipProvider>
     </QueryClientProvider>
   );
