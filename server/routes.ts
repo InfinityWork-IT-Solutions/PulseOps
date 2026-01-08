@@ -142,7 +142,7 @@ async function seedDatabase() {
   if (existing.length === 0) {
     // Create 'General' Dashboard
     const dashboard = await storage.createDashboard({
-      title: "Lumina Insight",
+      title: "Aether Analytics",
       description: "Overview of system metrics",
       isFavorite: true,
     });
