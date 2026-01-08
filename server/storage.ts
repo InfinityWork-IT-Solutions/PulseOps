@@ -1,38 +1,90 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  dashboards, panels, dataSources,
+  type Dashboard, type InsertDashboard,
+  type Panel, type InsertPanel,
+  type DataSource, type InsertDataSource
+} from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Dashboards
+  getDashboards(): Promise<Dashboard[]>;
+  getDashboard(id: number): Promise<Dashboard | undefined>;
+  createDashboard(dashboard: InsertDashboard): Promise<Dashboard>;
+  updateDashboard(id: number, updates: Partial<InsertDashboard>): Promise<Dashboard>;
+  deleteDashboard(id: number): Promise<void>;
+
+  // Panels
+  getPanels(dashboardId: number): Promise<Panel[]>;
+  createPanel(panel: InsertPanel): Promise<Panel>;
+  updatePanel(id: number, updates: Partial<InsertPanel>): Promise<Panel>;
+  deletePanel(id: number): Promise<void>;
+
+  // Data Sources
+  getDataSources(): Promise<DataSource[]>;
+  createDataSource(ds: InsertDataSource): Promise<DataSource>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  // Dashboards
+  async getDashboards(): Promise<Dashboard[]> {
+    return await db.select().from(dashboards).orderBy(dashboards.createdAt);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getDashboard(id: number): Promise<Dashboard | undefined> {
+    const [dashboard] = await db.select().from(dashboards).where(eq(dashboards.id, id));
+    return dashboard;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createDashboard(insertDashboard: InsertDashboard): Promise<Dashboard> {
+    const [dashboard] = await db.insert(dashboards).values(insertDashboard).returning();
+    return dashboard;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async updateDashboard(id: number, updates: Partial<InsertDashboard>): Promise<Dashboard> {
+    const [dashboard] = await db.update(dashboards)
+      .set(updates)
+      .where(eq(dashboards.id, id))
+      .returning();
+    return dashboard;
+  }
+
+  async deleteDashboard(id: number): Promise<void> {
+    await db.delete(dashboards).where(eq(dashboards.id, id));
+  }
+
+  // Panels
+  async getPanels(dashboardId: number): Promise<Panel[]> {
+    return await db.select().from(panels).where(eq(panels.dashboardId, dashboardId));
+  }
+
+  async createPanel(insertPanel: InsertPanel): Promise<Panel> {
+    const [panel] = await db.insert(panels).values(insertPanel).returning();
+    return panel;
+  }
+
+  async updatePanel(id: number, updates: Partial<InsertPanel>): Promise<Panel> {
+    const [panel] = await db.update(panels)
+      .set(updates)
+      .where(eq(panels.id, id))
+      .returning();
+    return panel;
+  }
+
+  async deletePanel(id: number): Promise<void> {
+    await db.delete(panels).where(eq(panels.id, id));
+  }
+
+  // Data Sources
+  async getDataSources(): Promise<DataSource[]> {
+    return await db.select().from(dataSources);
+  }
+
+  async createDataSource(insertDataSource: InsertDataSource): Promise<DataSource> {
+    const [dataSource] = await db.insert(dataSources).values(insertDataSource).returning();
+    return dataSource;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
