@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Database, Settings, LogOut, Bell } from "lucide-react";
+import { LayoutDashboard, Database, Settings, LogOut, Bell, Activity, FileText, Network, Sparkles, Command } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAlerts } from "@/hooks/use-alerts";
 
@@ -25,6 +25,12 @@ const NavItem = ({ href, icon: Icon, label, active, badge }: { href: string, ico
   </Link>
 );
 
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+    {children}
+  </div>
+);
+
 export function Sidebar() {
   const [location] = useLocation();
   const { data: alerts } = useAlerts();
@@ -32,8 +38,8 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-xl h-screen flex flex-col fixed left-0 top-0 z-50">
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-8">
+      <div className="p-6 pb-4">
+        <div className="flex items-center gap-3 mb-6">
           <div className="relative w-8 h-8 flex items-center justify-center">
             <div className="absolute inset-0 bg-primary/20 rounded-lg blur-sm" />
             <div className="relative w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
@@ -47,7 +53,16 @@ export function Sidebar() {
           </div>
         </div>
 
-        <div className="space-y-1">
+        <div className="flex items-center gap-2 px-3 py-2 bg-background/50 rounded-md border border-border/50 text-muted-foreground text-sm cursor-pointer hover:border-border transition-colors" data-testid="button-command-palette">
+          <Command className="w-4 h-4" />
+          <span className="flex-1">Search...</span>
+          <kbd className="text-xs bg-card px-1.5 py-0.5 rounded">⌘K</kbd>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4">
+        <SectionLabel>Overview</SectionLabel>
+        <div className="space-y-1 mb-4">
           <NavItem 
             href="/" 
             icon={LayoutDashboard} 
@@ -61,6 +76,42 @@ export function Sidebar() {
             active={location === "/alerts"}
             badge={activeAlertsCount}
           />
+        </div>
+
+        <SectionLabel>Observability</SectionLabel>
+        <div className="space-y-1 mb-4">
+          <NavItem 
+            href="/metrics" 
+            icon={Activity} 
+            label="Metrics Explorer" 
+            active={location === "/metrics"} 
+          />
+          <NavItem 
+            href="/logs" 
+            icon={FileText} 
+            label="Logs Viewer" 
+            active={location === "/logs"} 
+          />
+          <NavItem 
+            href="/services" 
+            icon={Network} 
+            label="Service Map" 
+            active={location === "/services"} 
+          />
+        </div>
+
+        <SectionLabel>Intelligence</SectionLabel>
+        <div className="space-y-1 mb-4">
+          <NavItem 
+            href="/insights" 
+            icon={Sparkles} 
+            label="Insight Canvas" 
+            active={location === "/insights"} 
+          />
+        </div>
+
+        <SectionLabel>Configuration</SectionLabel>
+        <div className="space-y-1">
           <NavItem 
             href="/datasources" 
             icon={Database} 
@@ -76,8 +127,8 @@ export function Sidebar() {
         </div>
       </div>
 
-      <div className="mt-auto p-6 border-t border-border/50">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:text-white cursor-pointer transition-colors" data-testid="button-sign-out">
+      <div className="p-4 border-t border-border/50">
+        <div className="flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:text-white hover:bg-white/5 cursor-pointer transition-colors" data-testid="button-sign-out">
           <LogOut className="w-5 h-5" />
           <span className="font-medium text-sm">Sign Out</span>
         </div>

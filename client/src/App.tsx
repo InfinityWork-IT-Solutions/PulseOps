@@ -4,11 +4,17 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { CommandPalette } from "@/components/CommandPalette";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import DashboardView from "@/pages/DashboardView";
 import DataSources from "@/pages/DataSources";
 import Alerts from "@/pages/Alerts";
+import MetricsExplorer from "@/pages/MetricsExplorer";
+import LogsViewer from "@/pages/LogsViewer";
+import ServiceMap from "@/pages/ServiceMap";
+import InsightCanvas from "@/pages/InsightCanvas";
+import Settings from "@/pages/Settings";
 
 function SplashScreen() {
   return (
@@ -46,6 +52,11 @@ function Router() {
       <Route path="/dashboard/:id" component={DashboardView} />
       <Route path="/datasources" component={DataSources} />
       <Route path="/alerts" component={Alerts} />
+      <Route path="/metrics" component={MetricsExplorer} />
+      <Route path="/logs" component={LogsViewer} />
+      <Route path="/services" component={ServiceMap} />
+      <Route path="/insights" component={InsightCanvas} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -66,6 +77,7 @@ function App() {
       <TooltipProvider delayDuration={100}>
         <div className="min-h-screen bg-background text-foreground animate-in fade-in duration-700">
           <Toaster />
+          <CommandPalette />
           <Router />
         </div>
       </TooltipProvider>
