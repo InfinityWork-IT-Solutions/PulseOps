@@ -99,6 +99,10 @@ Routes follow RESTful conventions:
 - `DATABASE_URL` - PostgreSQL connection string
 - `SESSION_SECRET` - Session encryption key
 
+## Company Information
+
+PulseOps is a product developed and owned by **Infinitywork IT Solutions** (https://infinityworkitsolutions.com/), founded by Mpumelelo Magagula.
+
 ## Recent Changes (January 2026)
 
 - Added complete observability suite (Metrics Explorer, Logs Viewer, Service Map)
@@ -108,3 +112,14 @@ Routes follow RESTful conventions:
 - Built reusable TimeRangeSelector component
 - Enhanced sidebar with categorized sections
 - Implemented alerts system with severity levels and resolution workflow
+- **Added marketing landing page** at "/" with:
+  - Hero section with animated branding
+  - Solutions section with 4 categories (Reliability, Cloud & K8s, DevOps/CI-CD, AI Autopilot)
+  - Integration support: GitHub Actions, ArgoCD, Atlantis, AWS, GCP, Azure, Kubernetes, Docker, Prometheus
+  - "Why PulseOps vs Grafana" comparison grid
+  - Email signup form for lead capture
+  - Customer logos and quantified outcomes (MTTR reduction, fewer incidents, etc.)
+  - Pricing plans (Free, Pro, Enterprise)
+  - Testimonials section
+  - Footer with Infinitywork IT Solutions branding
+- Updated routing: "/" shows landing page, "/app" shows dashboard workspace
