@@ -64,10 +64,10 @@ export function Sidebar() {
         <SectionLabel>Overview</SectionLabel>
         <div className="space-y-1 mb-4">
           <NavItem 
-            href="/" 
+            href="/app" 
             icon={LayoutDashboard} 
             label="Dashboards" 
-            active={location === "/" || location.startsWith("/dashboard")} 
+            active={location === "/app" || location.startsWith("/dashboard")} 
           />
           <NavItem 
             href="/alerts" 

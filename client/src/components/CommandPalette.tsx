@@ -53,7 +53,7 @@ export function CommandPalette() {
         <CommandEmpty>No results found.</CommandEmpty>
         
         <CommandGroup heading="Navigation">
-          <CommandItem onSelect={() => runCommand(() => setLocation("/"))}>
+          <CommandItem onSelect={() => runCommand(() => setLocation("/app"))}>
             <LayoutDashboard className="mr-2 h-4 w-4" />
             <span>Dashboards</span>
           </CommandItem>
@@ -90,7 +90,7 @@ export function CommandPalette() {
         <CommandSeparator />
 
         <CommandGroup heading="Quick Actions">
-          <CommandItem onSelect={() => runCommand(() => setLocation("/"))}>
+          <CommandItem onSelect={() => runCommand(() => setLocation("/app"))}>
             <Plus className="mr-2 h-4 w-4" />
             <span>Create Dashboard</span>
           </CommandItem>
