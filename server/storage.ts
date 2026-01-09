@@ -1,11 +1,12 @@
 import { db } from "./db";
 import {
-  dashboards, panels, dataSources,
+  dashboards, panels, dataSources, alerts,
   type Dashboard, type InsertDashboard,
   type Panel, type InsertPanel,
-  type DataSource, type InsertDataSource
+  type DataSource, type InsertDataSource,
+  type Alert, type InsertAlert
 } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Dashboards
@@ -93,7 +94,7 @@ export class DatabaseStorage implements IStorage {
 
   // Alerts
   async getAlerts(): Promise<Alert[]> {
-    return await db.select().from(alerts).orderBy(alerts.createdAt);
+    return await db.select().from(alerts).orderBy(desc(alerts.createdAt));
   }
 
   async createAlert(insertAlert: InsertAlert): Promise<Alert> {

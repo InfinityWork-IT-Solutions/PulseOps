@@ -132,7 +132,36 @@ export async function registerRoutes(
     }
   });
 
+  // === Alerts ===
+  app.get(api.alerts.list.path, async (_req, res) => {
+    const alerts = await storage.getAlerts();
+    res.json(alerts);
+  });
+
+  app.patch(api.alerts.update.path, async (req, res) => {
+    try {
+      const input = api.alerts.update.input.parse(req.body);
+      const alert = await storage.updateAlert(Number(req.params.id), {
+        status: input.status,
+        ...(input.resolvedAt && { resolvedAt: new Date(input.resolvedAt) })
+      } as any);
+      if (!alert) {
+        return res.status(404).json({ message: "Alert not found" });
+      }
+      res.json(alert);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
+  });
+
   await seedDatabase();
+  await seedAlerts();
 
   return httpServer;
 }
@@ -195,6 +224,47 @@ async function seedDatabase() {
         trend: 12
       },
       layoutConfig: { w: 3, h: 4 },
+    });
+  }
+}
+
+async function seedAlerts() {
+  const existingAlerts = await storage.getAlerts();
+  if (existingAlerts.length === 0) {
+    await storage.createAlert({
+      title: "High CPU Usage",
+      description: "Server CPU usage exceeded 85% threshold",
+      severity: "critical",
+      status: "active",
+      thresholdValue: 85,
+      currentValue: 92,
+    });
+
+    await storage.createAlert({
+      title: "Memory Warning",
+      description: "Memory usage approaching limit at 75%",
+      severity: "warning",
+      status: "active",
+      thresholdValue: 80,
+      currentValue: 75,
+    });
+
+    await storage.createAlert({
+      title: "Database Connection Pool",
+      description: "Connection pool utilization is high",
+      severity: "warning",
+      status: "active",
+      thresholdValue: 90,
+      currentValue: 78,
+    });
+
+    await storage.createAlert({
+      title: "API Response Time",
+      description: "Average response time increased to 450ms",
+      severity: "info",
+      status: "resolved",
+      thresholdValue: 500,
+      currentValue: 450,
     });
   }
 }
