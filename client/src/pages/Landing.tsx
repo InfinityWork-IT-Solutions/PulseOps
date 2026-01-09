@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Activity,
   BarChart3,
@@ -10,28 +12,39 @@ import {
   Brain,
   CheckCircle,
   ChevronRight,
+  Cloud,
   Code,
+  Container,
   Database,
   FileText,
+  GitBranch,
   Globe,
+  HeartPulse,
   Layout,
   LineChart,
   Lock,
   Mail,
   Network,
   Play,
+  Rocket,
+  Server,
   Shield,
   Sparkles,
+  Target,
   TrendingUp,
   Users,
+  Workflow,
+  X,
   Zap,
   ArrowRight,
   Star,
   Github,
   Twitter,
   Linkedin,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const features = [
   {
@@ -146,12 +159,98 @@ const integrations = [
   { name: "Kubernetes", icon: "k8s" },
   { name: "Docker", icon: "docker" },
   { name: "Prometheus", icon: "prometheus" },
-  { name: "Grafana", icon: "grafana" },
-  { name: "Datadog", icon: "datadog" },
+  { name: "GitHub Actions", icon: "github" },
+  { name: "ArgoCD", icon: "argocd" },
+];
+
+const solutions = {
+  reliability: {
+    title: "End-to-End Reliability Suite",
+    description: "Complete observability for reliable systems",
+    items: [
+      { icon: HeartPulse, name: "Infrastructure Monitoring", desc: "Monitor servers, containers, and cloud resources" },
+      { icon: Activity, name: "Application Performance", desc: "Track latency, throughput, and error rates" },
+      { icon: Network, name: "Network Observability", desc: "Visualize traffic flows and detect issues" },
+      { icon: Bell, name: "Incident Response", desc: "Automated alerting with smart escalation" },
+    ],
+  },
+  cloud: {
+    title: "Cloud & Kubernetes Observability",
+    description: "Native support for modern cloud infrastructure",
+    items: [
+      { icon: Container, name: "Kubernetes Monitoring", desc: "Full cluster visibility with pod-level metrics" },
+      { icon: Cloud, name: "Multi-Cloud Support", desc: "AWS, GCP, Azure unified dashboards" },
+      { icon: Server, name: "Serverless Monitoring", desc: "Lambda, Cloud Functions, Azure Functions" },
+      { icon: Database, name: "Database Insights", desc: "PostgreSQL, MySQL, MongoDB, Redis" },
+    ],
+  },
+  devops: {
+    title: "DevOps & CI/CD Intelligence",
+    description: "Integrate observability into your deployment pipeline",
+    items: [
+      { icon: GitBranch, name: "GitHub Actions", desc: "Monitor workflow runs and deployments" },
+      { icon: Workflow, name: "ArgoCD Integration", desc: "Track GitOps deployments and sync status" },
+      { icon: Rocket, name: "Atlantis Support", desc: "Terraform plan/apply observability" },
+      { icon: Target, name: "Deployment Tracking", desc: "Correlate releases with performance changes" },
+    ],
+  },
+  intelligence: {
+    title: "AI Incident Autopilot",
+    description: "Intelligent automation for faster resolution",
+    items: [
+      { icon: Brain, name: "Anomaly Detection", desc: "ML-powered detection across all metrics" },
+      { icon: Sparkles, name: "Root Cause Analysis", desc: "Automatic correlation of related events" },
+      { icon: Zap, name: "Predictive Alerts", desc: "Know about issues before they impact users" },
+      { icon: Shield, name: "Auto-Remediation", desc: "Automated runbooks for common issues" },
+    ],
+  },
+};
+
+const comparisonData: Array<{ feature: string; pulseops: boolean | "partial"; grafana: boolean | "partial" }> = [
+  { feature: "AI-Powered Anomaly Detection", pulseops: true, grafana: false },
+  { feature: "Automatic Root Cause Analysis", pulseops: true, grafana: false },
+  { feature: "Predictive Alerting", pulseops: true, grafana: false },
+  { feature: "Service Dependency Mapping", pulseops: true, grafana: "partial" },
+  { feature: "Unified Metrics, Logs, Traces", pulseops: true, grafana: "partial" },
+  { feature: "Built-in Dashboard Templates", pulseops: true, grafana: true },
+  { feature: "Custom Visualizations", pulseops: true, grafana: true },
+  { feature: "Multi-Cloud Support", pulseops: true, grafana: true },
+  { feature: "Kubernetes Native", pulseops: true, grafana: true },
+  { feature: "No Query Language Required", pulseops: true, grafana: false },
+  { feature: "One-Click Setup", pulseops: true, grafana: false },
+  { feature: "Transparent Pricing", pulseops: true, grafana: false },
+];
+
+const customerLogos = [
+  { name: "TechScale", industry: "SaaS" },
+  { name: "CloudNative Inc", industry: "Infrastructure" },
+  { name: "FastDeploy", industry: "DevOps" },
+  { name: "DataStream", industry: "Analytics" },
+  { name: "SecureOps", industry: "Security" },
+  { name: "FinanceHub", industry: "FinTech" },
 ];
 
 export default function Landing() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Welcome to PulseOps!",
+      description: "Check your email for next steps to get started.",
+    });
+    setEmail("");
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -172,6 +271,9 @@ export default function Landing() {
             </div>
 
             <nav className="hidden md:flex items-center gap-8">
+              <a href="#solutions" className="text-sm text-muted-foreground hover:text-white transition-colors" data-testid="link-solutions">
+                Solutions
+              </a>
               <a href="#features" className="text-sm text-muted-foreground hover:text-white transition-colors" data-testid="link-features">
                 Features
               </a>
@@ -317,17 +419,48 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Customer Logos & Outcomes Section */}
       <section className="py-16 border-y border-border/30 bg-card/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-muted-foreground mb-8">
             Trusted by engineering teams at innovative companies
           </p>
-          <div className="flex items-center justify-center gap-12 flex-wrap opacity-60">
-            {["Stripe", "Vercel", "Linear", "Notion", "Figma", "Slack"].map((company) => (
-              <div key={company} className="text-lg font-semibold text-muted-foreground">
-                {company}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
+            {customerLogos.map((customer) => (
+              <div 
+                key={customer.name} 
+                className="flex flex-col items-center gap-2 p-4 rounded-lg bg-card/50 border border-border/30"
+                data-testid={`customer-logo-${customer.name.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <span className="text-lg font-bold text-primary">
+                    {customer.name.split(' ').map(n => n[0]).join('')}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-white">{customer.name}</span>
+                <Badge variant="outline" className="text-xs">{customer.industry}</Badge>
               </div>
             ))}
+          </div>
+          
+          {/* Quantified Outcomes */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center p-6 rounded-lg bg-card/50 border border-border/30" data-testid="stat-mttr">
+              <div className="text-3xl font-bold text-primary mb-2">73%</div>
+              <div className="text-sm text-muted-foreground">Reduction in MTTR</div>
+            </div>
+            <div className="text-center p-6 rounded-lg bg-card/50 border border-border/30" data-testid="stat-incidents">
+              <div className="text-3xl font-bold text-green-500 mb-2">45%</div>
+              <div className="text-sm text-muted-foreground">Fewer Incidents</div>
+            </div>
+            <div className="text-center p-6 rounded-lg bg-card/50 border border-border/30" data-testid="stat-setup-time">
+              <div className="text-3xl font-bold text-purple-500 mb-2">5 min</div>
+              <div className="text-sm text-muted-foreground">Avg Setup Time</div>
+            </div>
+            <div className="text-center p-6 rounded-lg bg-card/50 border border-border/30" data-testid="stat-uptime">
+              <div className="text-3xl font-bold text-yellow-500 mb-2">99.9%</div>
+              <div className="text-sm text-muted-foreground">Platform Uptime</div>
+            </div>
           </div>
         </div>
       </section>
@@ -364,7 +497,125 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-24 bg-card/30 border-y border-border/30">
+      {/* Solutions Section */}
+      <section id="solutions" className="py-24 sm:py-32 bg-card/30 border-y border-border/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge variant="outline" className="mb-4">Solutions</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Tailored observability for every use case
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              From infrastructure monitoring to AI-powered incident response, we have solutions for your entire stack.
+            </p>
+          </div>
+
+          <Tabs defaultValue="reliability" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 h-auto gap-2 bg-transparent">
+              <TabsTrigger value="reliability" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" data-testid="tab-reliability">
+                Reliability
+              </TabsTrigger>
+              <TabsTrigger value="cloud" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" data-testid="tab-cloud">
+                Cloud & K8s
+              </TabsTrigger>
+              <TabsTrigger value="devops" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" data-testid="tab-devops">
+                DevOps & CI/CD
+              </TabsTrigger>
+              <TabsTrigger value="intelligence" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" data-testid="tab-intelligence">
+                AI Autopilot
+              </TabsTrigger>
+            </TabsList>
+
+            {Object.entries(solutions).map(([key, solution]) => (
+              <TabsContent key={key} value={key} className="mt-0">
+                <Card className="border-border/50 bg-card/50">
+                  <CardHeader>
+                    <CardTitle className="text-2xl text-white">{solution.title}</CardTitle>
+                    <CardDescription className="text-lg">{solution.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {solution.items.map((item) => (
+                        <div key={item.name} className="flex flex-col gap-3 p-4 rounded-lg bg-background/50 border border-border/30">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <item.icon className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-white mb-1">{item.name}</h4>
+                            <p className="text-sm text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </section>
+
+      {/* Comparison Section */}
+      <section id="compare" className="py-24 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge variant="outline" className="mb-4">Why PulseOps?</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              More intelligent. More intuitive.
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              See how PulseOps compares to traditional observability tools like Grafana.
+            </p>
+          </div>
+
+          <Card className="border-border/50 bg-card/50 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border/50">
+                    <th className="text-left p-4 text-muted-foreground font-medium">Feature</th>
+                    <th className="text-center p-4 min-w-[120px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                          <div className="w-4 h-1 bg-primary-foreground rounded-full" />
+                        </div>
+                        <span className="font-semibold text-white">PulseOps</span>
+                      </div>
+                    </th>
+                    <th className="text-center p-4 min-w-[120px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                          <BarChart3 className="w-4 h-4 text-orange-500" />
+                        </div>
+                        <span className="font-medium text-muted-foreground">Grafana</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparisonData.map((row, i) => (
+                    <tr key={row.feature} className={cn("border-b border-border/30", i % 2 === 0 ? "bg-card/30" : "")}>
+                      <td className="p-4 text-sm text-white">{row.feature}</td>
+                      <td className="p-4 text-center">
+                        {row.pulseops === true && <Check className="w-5 h-5 text-green-500 mx-auto" />}
+                        {row.pulseops === false && <X className="w-5 h-5 text-red-500/50 mx-auto" />}
+                        {row.pulseops === "partial" && <span className="text-yellow-500 text-sm">Partial</span>}
+                      </td>
+                      <td className="p-4 text-center">
+                        {row.grafana === true && <Check className="w-5 h-5 text-green-500 mx-auto" />}
+                        {row.grafana === false && <X className="w-5 h-5 text-red-500/50 mx-auto" />}
+                        {row.grafana === "partial" && <span className="text-yellow-500 text-sm">Partial</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      <section className="py-24 border-y border-border/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -533,26 +784,45 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-24">
+      {/* Email Signup Section */}
+      <section id="signup" className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative rounded-2xl border border-border/50 bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 p-12 text-center overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5" />
             <div className="relative">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Ready to get started?
+                Start monitoring in minutes
               </h2>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Join thousands of engineering teams using PulseOps to monitor their systems.
                 Start free, no credit card required.
               </p>
+              
+              {/* Email Signup Form */}
+              <form onSubmit={handleSignup} className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto mb-8">
+                <Input
+                  type="email"
+                  placeholder="Enter your work email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-background/50 border-border/50"
+                  required
+                  data-testid="input-signup-email"
+                />
+                <Button type="submit" size="lg" disabled={isSubmitting} data-testid="button-signup-submit">
+                  {isSubmitting ? "Signing up..." : "Get Started"}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </form>
+
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/app">
-                  <Button size="lg" className="gap-2" data-testid="button-cta-get-started">
-                    Get Started for Free
+                  <Button variant="outline" size="lg" className="gap-2" data-testid="button-cta-get-started">
+                    Go to Dashboard
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="gap-2" data-testid="button-contact-sales">
+                <Button variant="ghost" size="lg" className="gap-2" data-testid="button-contact-sales">
                   <Mail className="w-4 h-4" />
                   Contact Sales
                 </Button>
@@ -620,13 +890,25 @@ export default function Landing() {
           </div>
 
           <div className="pt-8 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              2026 PulseOps. All rights reserved.
-            </p>
+            <div className="text-sm text-muted-foreground text-center sm:text-left">
+              <p>© 2026 PulseOps. All rights reserved.</p>
+              <p className="mt-1">
+                A product by{" "}
+                <a 
+                  href="https://infinityworkitsolutions.com/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-primary hover:text-primary/80 transition-colors"
+                  data-testid="link-infinitywork"
+                >
+                  Infinitywork IT Solutions
+                </a>
+              </p>
+            </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors">Cookies</a>
+              <a href="#" className="hover:text-white transition-colors" data-testid="link-privacy">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors" data-testid="link-terms">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors" data-testid="link-cookies">Cookies</a>
             </div>
           </div>
         </div>
