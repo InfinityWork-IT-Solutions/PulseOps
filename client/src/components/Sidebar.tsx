@@ -32,9 +32,13 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 export function Sidebar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { data: alerts } = useAlerts();
   const activeAlertsCount = alerts?.filter(a => a.status === "active").length || 0;
+
+  const handleSignOut = () => {
+    setLocation("/");
+  };
 
   return (
     <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-xl h-screen flex flex-col fixed left-0 top-0 z-50">
@@ -128,7 +132,11 @@ export function Sidebar() {
       </div>
 
       <div className="p-4 border-t border-border/50">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:text-white hover:bg-white/5 cursor-pointer transition-colors" data-testid="button-sign-out">
+        <div 
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:text-white hover:bg-white/5 cursor-pointer transition-colors" 
+          data-testid="button-sign-out"
+          onClick={handleSignOut}
+        >
           <LogOut className="w-5 h-5" />
           <span className="font-medium text-sm">Sign Out</span>
         </div>
