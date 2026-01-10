@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertDashboardSchema, insertPanelSchema, insertDataSourceSchema, dashboards, panels, dataSources } from './schema';
+import { insertDashboardSchema, insertPanelSchema, insertDataSourceSchema, connectIntegrationSchema, dashboards, panels, dataSources, integrations } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -127,6 +127,36 @@ export const api = {
       input: z.object({ status: z.string(), resolvedAt: z.string().optional() }),
       responses: {
         200: z.custom<Alert>(),
+        404: errorSchemas.notFound,
+      },
+    },
+  },
+  integrations: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/integrations',
+      responses: {
+        200: z.array(z.custom<typeof integrations.$inferSelect>()),
+      },
+    },
+    connect: {
+      method: 'POST' as const,
+      path: '/api/integrations/connect',
+      input: connectIntegrationSchema.extend({
+        serviceName: z.string(),
+        category: z.string(),
+      }),
+      responses: {
+        200: z.custom<typeof integrations.$inferSelect>(),
+        400: errorSchemas.validation,
+        401: z.object({ message: z.string(), valid: z.literal(false) }),
+      },
+    },
+    disconnect: {
+      method: 'DELETE' as const,
+      path: '/api/integrations/:serviceId',
+      responses: {
+        204: z.void(),
         404: errorSchemas.notFound,
       },
     },

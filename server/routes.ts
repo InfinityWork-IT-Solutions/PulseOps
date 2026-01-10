@@ -160,6 +160,56 @@ export async function registerRoutes(
     }
   });
 
+  // === Integrations ===
+  app.get(api.integrations.list.path, async (_req, res) => {
+    const integrations = await storage.getIntegrations();
+    res.json(integrations);
+  });
+
+  app.post(api.integrations.connect.path, async (req, res) => {
+    try {
+      const input = api.integrations.connect.input.parse(req.body);
+      
+      // Validate the API key format and length
+      const isValidKey = validateApiKey(input.serviceId, input.apiKey);
+      
+      if (!isValidKey) {
+        return res.status(401).json({ 
+          message: "Invalid API key. Please check your key and try again.",
+          valid: false 
+        });
+      }
+      
+      // API key is valid - store connection status (NOT the key itself)
+      const integration = await storage.upsertIntegration({
+        serviceId: input.serviceId,
+        serviceName: input.serviceName,
+        category: input.category,
+        status: "connected",
+        lastValidatedAt: new Date(),
+      });
+      
+      res.json(integration);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
+  });
+
+  app.delete(api.integrations.disconnect.path, async (req, res) => {
+    const existing = await storage.getIntegration(req.params.serviceId);
+    if (!existing) {
+      return res.status(404).json({ message: "Integration not found" });
+    }
+    await storage.deleteIntegration(req.params.serviceId);
+    res.status(204).send();
+  });
+
   await seedDatabase();
   await seedAlerts();
 
@@ -226,6 +276,27 @@ async function seedDatabase() {
       layoutConfig: { w: 3, h: 4 },
     });
   }
+}
+
+// API key validation - checks basic requirements
+// In production, this would make an actual API call to verify the key with the service
+function validateApiKey(_serviceId: string, apiKey: string): boolean {
+  // Basic validation - key must be non-empty and have minimum length
+  if (!apiKey || typeof apiKey !== 'string') {
+    return false;
+  }
+  
+  // Minimum 20 characters for security
+  if (apiKey.trim().length < 20) {
+    return false;
+  }
+  
+  // Key must contain only valid characters (alphanumeric + common special chars used in API keys)
+  if (!/^[A-Za-z0-9+/_=-]+$/.test(apiKey.trim())) {
+    return false;
+  }
+  
+  return true;
 }
 
 async function seedAlerts() {

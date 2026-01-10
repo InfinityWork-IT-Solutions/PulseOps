@@ -108,6 +108,35 @@ export type InsertDataSource = z.infer<typeof insertDataSourceSchema>;
 export type Alert = typeof alerts.$inferSelect;
 export type InsertAlert = z.infer<typeof insertAlertSchema>;
 
+// === INTEGRATIONS ===
+export const integrations = pgTable("integrations", {
+  id: serial("id").primaryKey(),
+  serviceId: text("service_id").notNull().unique(),
+  serviceName: text("service_name").notNull(),
+  category: text("category").notNull(),
+  status: text("status").notNull().default("disconnected"), // 'connected', 'disconnected', 'error'
+  lastValidatedAt: timestamp("last_validated_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertIntegrationSchema = createInsertSchema(integrations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Integration = typeof integrations.$inferSelect;
+export type InsertIntegration = z.infer<typeof insertIntegrationSchema>;
+
+// Validation schema for connecting an integration (requires API key)
+export const connectIntegrationSchema = z.object({
+  serviceId: z.string().min(1, "Service ID is required"),
+  apiKey: z.string().min(10, "API key must be at least 10 characters"),
+});
+
+export type ConnectIntegrationRequest = z.infer<typeof connectIntegrationSchema>;
+
 // === API CONTRACT TYPES ===
 export type CreateDashboardRequest = InsertDashboard;
 export type UpdateDashboardRequest = Partial<InsertDashboard>;

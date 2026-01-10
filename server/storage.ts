@@ -1,10 +1,11 @@
 import { db } from "./db";
 import {
-  dashboards, panels, dataSources, alerts,
+  dashboards, panels, dataSources, alerts, integrations,
   type Dashboard, type InsertDashboard,
   type Panel, type InsertPanel,
   type DataSource, type InsertDataSource,
-  type Alert, type InsertAlert
+  type Alert, type InsertAlert,
+  type Integration, type InsertIntegration
 } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 
@@ -30,6 +31,13 @@ export interface IStorage {
   getAlerts(): Promise<Alert[]>;
   createAlert(alert: InsertAlert): Promise<Alert>;
   updateAlert(id: number, updates: Partial<InsertAlert>): Promise<Alert>;
+
+  // Integrations
+  getIntegrations(): Promise<Integration[]>;
+  getIntegration(serviceId: string): Promise<Integration | undefined>;
+  upsertIntegration(integration: InsertIntegration): Promise<Integration>;
+  updateIntegrationStatus(serviceId: string, status: string, lastValidatedAt?: Date): Promise<Integration>;
+  deleteIntegration(serviceId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -108,6 +116,41 @@ export class DatabaseStorage implements IStorage {
       .where(eq(alerts.id, id))
       .returning();
     return alert;
+  }
+
+  // Integrations
+  async getIntegrations(): Promise<Integration[]> {
+    return await db.select().from(integrations).orderBy(integrations.serviceName);
+  }
+
+  async getIntegration(serviceId: string): Promise<Integration | undefined> {
+    const [integration] = await db.select().from(integrations).where(eq(integrations.serviceId, serviceId));
+    return integration;
+  }
+
+  async upsertIntegration(insertIntegration: InsertIntegration): Promise<Integration> {
+    const existing = await this.getIntegration(insertIntegration.serviceId);
+    if (existing) {
+      const [updated] = await db.update(integrations)
+        .set({ ...insertIntegration, updatedAt: new Date() })
+        .where(eq(integrations.serviceId, insertIntegration.serviceId))
+        .returning();
+      return updated;
+    }
+    const [integration] = await db.insert(integrations).values(insertIntegration).returning();
+    return integration;
+  }
+
+  async updateIntegrationStatus(serviceId: string, status: string, lastValidatedAt?: Date): Promise<Integration> {
+    const [integration] = await db.update(integrations)
+      .set({ status, lastValidatedAt, updatedAt: new Date() })
+      .where(eq(integrations.serviceId, serviceId))
+      .returning();
+    return integration;
+  }
+
+  async deleteIntegration(serviceId: string): Promise<void> {
+    await db.delete(integrations).where(eq(integrations.serviceId, serviceId));
   }
 }
 
