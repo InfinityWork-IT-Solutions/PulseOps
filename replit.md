@@ -123,3 +123,10 @@ PulseOps is a product developed and owned by **Infinitywork IT Solutions** (http
   - Testimonials section
   - Footer with Infinitywork IT Solutions branding
 - Updated routing: "/" shows landing page, "/app" shows dashboard workspace
+- **Added unique Login page** at "/login" with:
+  - Glass morphism card effect (backdrop-blur, translucent background)
+  - Animated observability background (floating icons, pulse rings, gradient orbs, grid animation)
+  - Smooth 3D flip animation between Sign In and Sign Up forms
+  - Social login buttons (Google, GitHub, Microsoft)
+  - Form validation using react-hook-form with zod schemas
+  - Password visibility toggle
