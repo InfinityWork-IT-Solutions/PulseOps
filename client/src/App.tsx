@@ -16,6 +16,7 @@ import ServiceMap from "@/pages/ServiceMap";
 import InsightCanvas from "@/pages/InsightCanvas";
 import Settings from "@/pages/Settings";
 import Landing from "@/pages/Landing";
+import Login from "@/pages/Login";
 
 function SplashScreen() {
   return (
@@ -50,6 +51,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/login" component={Login} />
       <Route path="/app" component={Home} />
       <Route path="/dashboard/:id" component={DashboardView} />
       <Route path="/datasources" component={DataSources} />

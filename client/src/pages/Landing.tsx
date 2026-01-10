@@ -289,12 +289,12 @@ export default function Landing() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <Link href="/app">
+              <Link href="/login">
                 <Button variant="ghost" size="sm" data-testid="button-login">
                   Log In
                 </Button>
               </Link>
-              <Link href="/app">
+              <Link href="/login">
                 <Button size="sm" className="gap-2" data-testid="button-get-started">
                   Get Started
                   <ArrowRight className="w-4 h-4" />
@@ -329,7 +329,7 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/app">
+              <Link href="/login">
                 <Button size="lg" className="gap-2" data-testid="button-start-free">
                   <Play className="w-4 h-4" />
                   Start Free
