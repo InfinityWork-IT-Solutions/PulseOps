@@ -132,7 +132,7 @@ export type InsertIntegration = z.infer<typeof insertIntegrationSchema>;
 // Validation schema for connecting an integration (requires API key)
 export const connectIntegrationSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
-  apiKey: z.string().min(10, "API key must be at least 10 characters"),
+  apiKey: z.string().min(20, "API key must be at least 20 characters"),
 });
 
 export type ConnectIntegrationRequest = z.infer<typeof connectIntegrationSchema>;
