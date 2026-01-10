@@ -103,8 +103,16 @@ Routes follow RESTful conventions:
 
 PulseOps is a product developed and owned by **Infinitywork IT Solutions** (https://infinityworkitsolutions.com/), founded by Mpumelelo Magagula.
 
+## Documentation
+
+- `README.md` - User-facing documentation with getting started guide and API key setup instructions
+- `LIVING_DOC.md` - Comprehensive technical documentation with architecture, features, and API reference
+
 ## Recent Changes (January 2026)
 
+- Created comprehensive documentation (README.md and LIVING_DOC.md)
+- Added API key validation for integrations (20+ char minimum, server-side validation)
+- Integrations now validate before connecting (invalid keys are rejected)
 - Added complete observability suite (Metrics Explorer, Logs Viewer, Service Map)
 - Implemented PulseOps Insight Canvas with AI-powered features
 - Created comprehensive Settings page with tabs
