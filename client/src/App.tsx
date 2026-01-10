@@ -17,6 +17,8 @@ import InsightCanvas from "@/pages/InsightCanvas";
 import Settings from "@/pages/Settings";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
+import Integrations from "@/pages/Integrations";
+import Incidents from "@/pages/Incidents";
 
 function SplashScreen() {
   return (
@@ -56,10 +58,12 @@ function Router() {
       <Route path="/dashboard/:id" component={DashboardView} />
       <Route path="/datasources" component={DataSources} />
       <Route path="/alerts" component={Alerts} />
+      <Route path="/incidents" component={Incidents} />
       <Route path="/metrics" component={MetricsExplorer} />
       <Route path="/logs" component={LogsViewer} />
       <Route path="/services" component={ServiceMap} />
       <Route path="/insights" component={InsightCanvas} />
+      <Route path="/integrations" component={Integrations} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>

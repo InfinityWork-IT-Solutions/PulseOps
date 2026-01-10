@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useDashboards, useCreateDashboard, useDeleteDashboard } from "@/hooks/use-dashboards";
 import { Sidebar } from "@/components/Sidebar";
-import { Plus, Search, LayoutGrid, Star, MoreHorizontal, Trash2 } from "lucide-react";
+import { Plus, Search, LayoutGrid, Star, MoreHorizontal, Trash2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +14,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
 
 export default function Home() {
   const { data: dashboards, isLoading } = useDashboards();
@@ -23,6 +24,19 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newDashData, setNewDashData] = useState({ title: "", description: "" });
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem("pulseops_onboarding_complete");
+    if (!hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("pulseops_onboarding_complete", "true");
+    setShowOnboarding(false);
+  };
 
   const filteredDashboards = dashboards?.filter(d => 
     d.title.toLowerCase().includes(search.toLowerCase())
@@ -63,9 +77,19 @@ export default function Home() {
                   className="pl-9 bg-card border-border focus:ring-primary"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  data-testid="input-search-dashboards"
                 />
               </div>
-              <Button onClick={() => setIsCreateOpen(true)} className="bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowOnboarding(true)} 
+                className="border-border hover:bg-white/5"
+                data-testid="button-run-setup"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Setup Guide
+              </Button>
+              <Button onClick={() => setIsCreateOpen(true)} className="bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90" data-testid="button-new-dashboard">
                 <Plus className="w-4 h-4 mr-2" />
                 New Dashboard
               </Button>
@@ -166,6 +190,13 @@ export default function Home() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Onboarding Wizard */}
+      <OnboardingWizard
+        open={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={handleOnboardingComplete}
+      />
     </div>
   );
 }

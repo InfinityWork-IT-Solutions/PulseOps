@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Database, Settings, LogOut, Bell, Activity, FileText, Network, Sparkles, Command } from "lucide-react";
+import { LayoutDashboard, Database, Settings, LogOut, Bell, Activity, FileText, Network, Sparkles, Command, Plug, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAlerts } from "@/hooks/use-alerts";
 
@@ -80,6 +80,12 @@ export function Sidebar() {
             active={location === "/alerts"}
             badge={activeAlertsCount}
           />
+          <NavItem 
+            href="/incidents" 
+            icon={AlertTriangle} 
+            label="Incidents" 
+            active={location === "/incidents"} 
+          />
         </div>
 
         <SectionLabel>Observability</SectionLabel>
@@ -116,6 +122,12 @@ export function Sidebar() {
 
         <SectionLabel>Configuration</SectionLabel>
         <div className="space-y-1">
+          <NavItem 
+            href="/integrations" 
+            icon={Plug} 
+            label="Integrations" 
+            active={location === "/integrations"} 
+          />
           <NavItem 
             href="/datasources" 
             icon={Database} 
