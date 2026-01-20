@@ -496,6 +496,7 @@ export async function registerRoutes(
   await seedAlertTemplates();
   await seedSlos();
   await seedTraces();
+  await seedCorrelations();
 
   return httpServer;
 }
@@ -828,6 +829,67 @@ async function seedTraces() {
       startTime: new Date(now.getTime() - 59985),
       endTime: new Date(now.getTime() - 59980),
       tags: { "cache.hit": true },
+    });
+  }
+}
+
+async function seedCorrelations() {
+  const existing = await storage.getSignalCorrelations();
+  if (existing.length === 0) {
+    await storage.createSignalCorrelation({
+      correlationId: "corr-001-cpu-memory",
+      alertIds: [1, 2],
+      logPatterns: ["OutOfMemoryError", "GC overhead limit exceeded"],
+      metricAnomalies: ["cpu.usage > 85%", "memory.usage > 80%"],
+      traceIds: ["trace-002-def456", "trace-003-ghi789"],
+      serviceIds: ["api-gateway", "checkout-service"],
+      severity: "critical",
+      status: "active",
+      aiAnalysis: "High CPU usage is correlating with memory pressure. The garbage collector is working overtime, causing increased latency and potential service degradation.",
+      suggestedCause: "Memory leak in checkout service or insufficient heap allocation during peak load",
+      confidence: 92,
+    });
+
+    await storage.createSignalCorrelation({
+      correlationId: "corr-002-latency-errors",
+      alertIds: [3],
+      logPatterns: ["timeout", "connection refused"],
+      metricAnomalies: ["p99.latency > 500ms", "error.rate > 5%"],
+      traceIds: ["trace-001-abc123"],
+      serviceIds: ["payment-service", "database-cluster"],
+      severity: "warning",
+      status: "active",
+      aiAnalysis: "Payment service is experiencing increased latency which correlates with a spike in connection errors to the database. This suggests a database performance issue.",
+      suggestedCause: "Database connection pool exhaustion or slow query affecting payment processing",
+      confidence: 87,
+    });
+
+    await storage.createSignalCorrelation({
+      correlationId: "corr-003-cache-miss",
+      alertIds: [],
+      logPatterns: ["cache miss", "slow query"],
+      metricAnomalies: ["redis.hits < 60%"],
+      traceIds: [],
+      serviceIds: ["cache", "user-service"],
+      severity: "info",
+      status: "resolved",
+      aiAnalysis: "Cache hit ratio dropped below baseline, causing increased database load.",
+      suggestedCause: "Cache key changes or cache eviction policy triggered",
+      confidence: 72,
+    });
+
+    await storage.createSignalCorrelation({
+      correlationId: "corr-004-disk-io",
+      alertIds: [],
+      logPatterns: ["disk space low", "I/O wait"],
+      metricAnomalies: ["disk.usage > 90%", "disk.io.wait > 20%"],
+      traceIds: [],
+      serviceIds: ["database-cluster"],
+      severity: "warning",
+      status: "active",
+      aiAnalysis: "Disk space utilization is critically high with I/O wait times increasing. This will impact database performance.",
+      suggestedCause: "Large logs or temporary files accumulating on disk",
+      confidence: 85,
     });
   }
 }

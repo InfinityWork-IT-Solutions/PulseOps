@@ -12,6 +12,7 @@ import DataSources from "@/pages/DataSources";
 import Alerts from "@/pages/Alerts";
 import MetricsExplorer from "@/pages/MetricsExplorer";
 import LogsViewer from "@/pages/LogsViewer";
+import SavedQueries from "@/pages/SavedQueries";
 import ServiceMap from "@/pages/ServiceMap";
 import InsightCanvas from "@/pages/InsightCanvas";
 import Settings from "@/pages/Settings";
@@ -19,6 +20,12 @@ import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Integrations from "@/pages/Integrations";
 import Incidents from "@/pages/Incidents";
+import Postmortems from "@/pages/Postmortems";
+import AlertTemplates from "@/pages/AlertTemplates";
+import OnCall from "@/pages/OnCall";
+import SLOs from "@/pages/SLOs";
+import Traces from "@/pages/Traces";
+import Correlations from "@/pages/Correlations";
 
 function SplashScreen() {
   return (
@@ -58,12 +65,19 @@ function Router() {
       <Route path="/dashboard/:id" component={DashboardView} />
       <Route path="/datasources" component={DataSources} />
       <Route path="/alerts" component={Alerts} />
+      <Route path="/alert-templates" component={AlertTemplates} />
       <Route path="/incidents" component={Incidents} />
+      <Route path="/postmortems" component={Postmortems} />
       <Route path="/metrics" component={MetricsExplorer} />
       <Route path="/logs" component={LogsViewer} />
+      <Route path="/queries" component={SavedQueries} />
       <Route path="/services" component={ServiceMap} />
       <Route path="/insights" component={InsightCanvas} />
       <Route path="/integrations" component={Integrations} />
+      <Route path="/on-call" component={OnCall} />
+      <Route path="/slos" component={SLOs} />
+      <Route path="/traces" component={Traces} />
+      <Route path="/correlations" component={Correlations} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>

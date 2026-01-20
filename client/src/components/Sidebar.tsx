@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Database, Settings, LogOut, Bell, Activity, FileText, Network, Sparkles, Command, Plug, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, Database, Settings, LogOut, Bell, Activity, FileText, Network, Sparkles, Command, Plug, AlertTriangle, Code, Clock, TrendingUp, Zap, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAlerts } from "@/hooks/use-alerts";
 
@@ -81,10 +81,22 @@ export function Sidebar() {
             badge={activeAlertsCount}
           />
           <NavItem 
+            href="/alert-templates" 
+            icon={FileText} 
+            label="Alert Templates" 
+            active={location === "/alert-templates"}
+          />
+          <NavItem 
             href="/incidents" 
             icon={AlertTriangle} 
             label="Incidents" 
             active={location === "/incidents"} 
+          />
+          <NavItem 
+            href="/postmortems" 
+            icon={FileText} 
+            label="Postmortems" 
+            active={location === "/postmortems"} 
           />
         </div>
 
@@ -103,10 +115,34 @@ export function Sidebar() {
             active={location === "/logs"} 
           />
           <NavItem 
+            href="/traces" 
+            icon={Zap} 
+            label="Traces" 
+            active={location === "/traces"} 
+          />
+          <NavItem 
+            href="/queries" 
+            icon={Code} 
+            label="Saved Queries" 
+            active={location === "/queries"} 
+          />
+          <NavItem 
             href="/services" 
             icon={Network} 
             label="Service Map" 
             active={location === "/services"} 
+          />
+          <NavItem 
+            href="/slos" 
+            icon={TrendingUp} 
+            label="SLOs" 
+            active={location === "/slos"} 
+          />
+          <NavItem 
+            href="/correlations" 
+            icon={GitBranch} 
+            label="Signal Correlations" 
+            active={location === "/correlations"} 
           />
         </div>
 
@@ -122,6 +158,12 @@ export function Sidebar() {
 
         <SectionLabel>Configuration</SectionLabel>
         <div className="space-y-1">
+          <NavItem 
+            href="/on-call" 
+            icon={Clock} 
+            label="On-Call Management" 
+            active={location === "/on-call"} 
+          />
           <NavItem 
             href="/integrations" 
             icon={Plug} 
