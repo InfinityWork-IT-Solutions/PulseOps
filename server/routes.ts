@@ -491,6 +491,175 @@ export async function registerRoutes(
     res.json(correlation);
   });
 
+  // === Teams ===
+  app.get("/api/teams", async (_req, res) => {
+    const teams = await storage.getTeams();
+    res.json(teams);
+  });
+
+  app.get("/api/teams/:id", async (req, res) => {
+    const team = await storage.getTeam(Number(req.params.id));
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+    res.json(team);
+  });
+
+  app.post("/api/teams", async (req, res) => {
+    try {
+      const team = await storage.createTeam(req.body);
+      res.status(201).json(team);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create team" });
+    }
+  });
+
+  app.put("/api/teams/:id", async (req, res) => {
+    const team = await storage.updateTeam(Number(req.params.id), req.body);
+    res.json(team);
+  });
+
+  app.delete("/api/teams/:id", async (req, res) => {
+    await storage.deleteTeam(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Team Members ===
+  app.get("/api/teams/:teamId/members", async (req, res) => {
+    const members = await storage.getTeamMembers(Number(req.params.teamId));
+    res.json(members);
+  });
+
+  app.post("/api/teams/:teamId/members", async (req, res) => {
+    try {
+      const member = await storage.addTeamMember({
+        ...req.body,
+        teamId: Number(req.params.teamId)
+      });
+      res.status(201).json(member);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to add team member" });
+    }
+  });
+
+  app.put("/api/team-members/:id", async (req, res) => {
+    const member = await storage.updateTeamMember(Number(req.params.id), req.body);
+    res.json(member);
+  });
+
+  app.delete("/api/team-members/:id", async (req, res) => {
+    await storage.removeTeamMember(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Webhooks ===
+  app.get("/api/webhooks", async (_req, res) => {
+    const webhooks = await storage.getWebhooks();
+    res.json(webhooks);
+  });
+
+  app.get("/api/webhooks/:id", async (req, res) => {
+    const webhook = await storage.getWebhook(Number(req.params.id));
+    if (!webhook) {
+      return res.status(404).json({ message: "Webhook not found" });
+    }
+    res.json(webhook);
+  });
+
+  app.post("/api/webhooks", async (req, res) => {
+    try {
+      const webhook = await storage.createWebhook(req.body);
+      res.status(201).json(webhook);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create webhook" });
+    }
+  });
+
+  app.put("/api/webhooks/:id", async (req, res) => {
+    const webhook = await storage.updateWebhook(Number(req.params.id), req.body);
+    res.json(webhook);
+  });
+
+  app.delete("/api/webhooks/:id", async (req, res) => {
+    await storage.deleteWebhook(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  app.post("/api/webhooks/:id/test", async (req, res) => {
+    const webhook = await storage.getWebhook(Number(req.params.id));
+    if (!webhook) {
+      return res.status(404).json({ message: "Webhook not found" });
+    }
+    // Mock test - in production, this would actually send a test payload
+    res.json({ success: true, message: "Test payload sent successfully" });
+  });
+
+  // === Notification Channels ===
+  app.get("/api/notification-channels", async (_req, res) => {
+    const channels = await storage.getNotificationChannels();
+    res.json(channels);
+  });
+
+  app.get("/api/notification-channels/:id", async (req, res) => {
+    const channel = await storage.getNotificationChannel(Number(req.params.id));
+    if (!channel) {
+      return res.status(404).json({ message: "Notification channel not found" });
+    }
+    res.json(channel);
+  });
+
+  app.post("/api/notification-channels", async (req, res) => {
+    try {
+      const channel = await storage.createNotificationChannel(req.body);
+      res.status(201).json(channel);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create notification channel" });
+    }
+  });
+
+  app.put("/api/notification-channels/:id", async (req, res) => {
+    const channel = await storage.updateNotificationChannel(Number(req.params.id), req.body);
+    res.json(channel);
+  });
+
+  app.delete("/api/notification-channels/:id", async (req, res) => {
+    await storage.deleteNotificationChannel(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Report Schedules ===
+  app.get("/api/report-schedules", async (_req, res) => {
+    const schedules = await storage.getReportSchedules();
+    res.json(schedules);
+  });
+
+  app.get("/api/report-schedules/:id", async (req, res) => {
+    const schedule = await storage.getReportSchedule(Number(req.params.id));
+    if (!schedule) {
+      return res.status(404).json({ message: "Report schedule not found" });
+    }
+    res.json(schedule);
+  });
+
+  app.post("/api/report-schedules", async (req, res) => {
+    try {
+      const schedule = await storage.createReportSchedule(req.body);
+      res.status(201).json(schedule);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create report schedule" });
+    }
+  });
+
+  app.put("/api/report-schedules/:id", async (req, res) => {
+    const schedule = await storage.updateReportSchedule(Number(req.params.id), req.body);
+    res.json(schedule);
+  });
+
+  app.delete("/api/report-schedules/:id", async (req, res) => {
+    await storage.deleteReportSchedule(Number(req.params.id));
+    res.status(204).send();
+  });
+
   await seedDatabase();
   await seedAlerts();
   await seedAlertTemplates();

@@ -3,6 +3,7 @@ import {
   dashboards, panels, dataSources, alerts, integrations,
   savedQueries, dashboardShares, alertTemplates, incidentTimelines,
   onCallSchedules, escalationPolicies, slos, traces, spans, postmortems, signalCorrelations,
+  teams, teamMembers, webhooks, notificationChannels, reportSchedules,
   type Dashboard, type InsertDashboard,
   type Panel, type InsertPanel,
   type DataSource, type InsertDataSource,
@@ -18,7 +19,12 @@ import {
   type Trace, type InsertTrace,
   type Span, type InsertSpan,
   type Postmortem, type InsertPostmortem,
-  type SignalCorrelation, type InsertSignalCorrelation
+  type SignalCorrelation, type InsertSignalCorrelation,
+  type Team, type InsertTeam,
+  type TeamMember, type InsertTeamMember,
+  type Webhook, type InsertWebhook,
+  type NotificationChannel, type InsertNotificationChannel,
+  type ReportSchedule, type InsertReportSchedule
 } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -115,6 +121,40 @@ export interface IStorage {
   getSignalCorrelation(correlationId: string): Promise<SignalCorrelation | undefined>;
   createSignalCorrelation(correlation: InsertSignalCorrelation): Promise<SignalCorrelation>;
   updateSignalCorrelation(correlationId: string, updates: Partial<InsertSignalCorrelation>): Promise<SignalCorrelation>;
+
+  // Teams
+  getTeams(): Promise<Team[]>;
+  getTeam(id: number): Promise<Team | undefined>;
+  createTeam(team: InsertTeam): Promise<Team>;
+  updateTeam(id: number, updates: Partial<InsertTeam>): Promise<Team>;
+  deleteTeam(id: number): Promise<void>;
+
+  // Team Members
+  getTeamMembers(teamId: number): Promise<TeamMember[]>;
+  addTeamMember(member: InsertTeamMember): Promise<TeamMember>;
+  updateTeamMember(id: number, updates: Partial<InsertTeamMember>): Promise<TeamMember>;
+  removeTeamMember(id: number): Promise<void>;
+
+  // Webhooks
+  getWebhooks(): Promise<Webhook[]>;
+  getWebhook(id: number): Promise<Webhook | undefined>;
+  createWebhook(webhook: InsertWebhook): Promise<Webhook>;
+  updateWebhook(id: number, updates: Partial<InsertWebhook>): Promise<Webhook>;
+  deleteWebhook(id: number): Promise<void>;
+
+  // Notification Channels
+  getNotificationChannels(): Promise<NotificationChannel[]>;
+  getNotificationChannel(id: number): Promise<NotificationChannel | undefined>;
+  createNotificationChannel(channel: InsertNotificationChannel): Promise<NotificationChannel>;
+  updateNotificationChannel(id: number, updates: Partial<InsertNotificationChannel>): Promise<NotificationChannel>;
+  deleteNotificationChannel(id: number): Promise<void>;
+
+  // Report Schedules
+  getReportSchedules(): Promise<ReportSchedule[]>;
+  getReportSchedule(id: number): Promise<ReportSchedule | undefined>;
+  createReportSchedule(schedule: InsertReportSchedule): Promise<ReportSchedule>;
+  updateReportSchedule(id: number, updates: Partial<InsertReportSchedule>): Promise<ReportSchedule>;
+  deleteReportSchedule(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -461,6 +501,136 @@ export class DatabaseStorage implements IStorage {
       .where(eq(signalCorrelations.correlationId, correlationId))
       .returning();
     return updated;
+  }
+
+  // Teams
+  async getTeams(): Promise<Team[]> {
+    return await db.select().from(teams).orderBy(teams.name);
+  }
+
+  async getTeam(id: number): Promise<Team | undefined> {
+    const [team] = await db.select().from(teams).where(eq(teams.id, id));
+    return team;
+  }
+
+  async createTeam(team: InsertTeam): Promise<Team> {
+    const [created] = await db.insert(teams).values(team).returning();
+    return created;
+  }
+
+  async updateTeam(id: number, updates: Partial<InsertTeam>): Promise<Team> {
+    const [updated] = await db.update(teams)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(teams.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteTeam(id: number): Promise<void> {
+    await db.delete(teams).where(eq(teams.id, id));
+  }
+
+  // Team Members
+  async getTeamMembers(teamId: number): Promise<TeamMember[]> {
+    return await db.select().from(teamMembers).where(eq(teamMembers.teamId, teamId));
+  }
+
+  async addTeamMember(member: InsertTeamMember): Promise<TeamMember> {
+    const [created] = await db.insert(teamMembers).values(member).returning();
+    return created;
+  }
+
+  async updateTeamMember(id: number, updates: Partial<InsertTeamMember>): Promise<TeamMember> {
+    const [updated] = await db.update(teamMembers)
+      .set(updates)
+      .where(eq(teamMembers.id, id))
+      .returning();
+    return updated;
+  }
+
+  async removeTeamMember(id: number): Promise<void> {
+    await db.delete(teamMembers).where(eq(teamMembers.id, id));
+  }
+
+  // Webhooks
+  async getWebhooks(): Promise<Webhook[]> {
+    return await db.select().from(webhooks).orderBy(desc(webhooks.createdAt));
+  }
+
+  async getWebhook(id: number): Promise<Webhook | undefined> {
+    const [webhook] = await db.select().from(webhooks).where(eq(webhooks.id, id));
+    return webhook;
+  }
+
+  async createWebhook(webhook: InsertWebhook): Promise<Webhook> {
+    const [created] = await db.insert(webhooks).values(webhook).returning();
+    return created;
+  }
+
+  async updateWebhook(id: number, updates: Partial<InsertWebhook>): Promise<Webhook> {
+    const [updated] = await db.update(webhooks)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(webhooks.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteWebhook(id: number): Promise<void> {
+    await db.delete(webhooks).where(eq(webhooks.id, id));
+  }
+
+  // Notification Channels
+  async getNotificationChannels(): Promise<NotificationChannel[]> {
+    return await db.select().from(notificationChannels).orderBy(notificationChannels.name);
+  }
+
+  async getNotificationChannel(id: number): Promise<NotificationChannel | undefined> {
+    const [channel] = await db.select().from(notificationChannels).where(eq(notificationChannels.id, id));
+    return channel;
+  }
+
+  async createNotificationChannel(channel: InsertNotificationChannel): Promise<NotificationChannel> {
+    const [created] = await db.insert(notificationChannels).values(channel).returning();
+    return created;
+  }
+
+  async updateNotificationChannel(id: number, updates: Partial<InsertNotificationChannel>): Promise<NotificationChannel> {
+    const [updated] = await db.update(notificationChannels)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(notificationChannels.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteNotificationChannel(id: number): Promise<void> {
+    await db.delete(notificationChannels).where(eq(notificationChannels.id, id));
+  }
+
+  // Report Schedules
+  async getReportSchedules(): Promise<ReportSchedule[]> {
+    return await db.select().from(reportSchedules).orderBy(reportSchedules.name);
+  }
+
+  async getReportSchedule(id: number): Promise<ReportSchedule | undefined> {
+    const [schedule] = await db.select().from(reportSchedules).where(eq(reportSchedules.id, id));
+    return schedule;
+  }
+
+  async createReportSchedule(schedule: InsertReportSchedule): Promise<ReportSchedule> {
+    const [created] = await db.insert(reportSchedules).values(schedule).returning();
+    return created;
+  }
+
+  async updateReportSchedule(id: number, updates: Partial<InsertReportSchedule>): Promise<ReportSchedule> {
+    const [updated] = await db.update(reportSchedules)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(reportSchedules.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteReportSchedule(id: number): Promise<void> {
+    await db.delete(reportSchedules).where(eq(reportSchedules.id, id));
   }
 }
 

@@ -387,6 +387,120 @@ export const insertSignalCorrelationSchema = createInsertSchema(signalCorrelatio
 export type SignalCorrelation = typeof signalCorrelations.$inferSelect;
 export type InsertSignalCorrelation = z.infer<typeof insertSignalCorrelationSchema>;
 
+// === TEAMS ===
+export const teams = pgTable("teams", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  slug: text("slug").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertTeamSchema = createInsertSchema(teams).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Team = typeof teams.$inferSelect;
+export type InsertTeam = z.infer<typeof insertTeamSchema>;
+
+// === TEAM MEMBERS ===
+export const teamMembers = pgTable("team_members", {
+  id: serial("id").primaryKey(),
+  teamId: integer("team_id").references(() => teams.id),
+  userId: text("user_id"),
+  email: text("email").notNull(),
+  role: text("role").notNull().default("viewer"), // 'admin', 'editor', 'viewer'
+  invitedAt: timestamp("invited_at").defaultNow(),
+  joinedAt: timestamp("joined_at"),
+});
+
+export const insertTeamMemberSchema = createInsertSchema(teamMembers).omit({
+  id: true,
+  invitedAt: true,
+  joinedAt: true,
+});
+
+export type TeamMember = typeof teamMembers.$inferSelect;
+export type InsertTeamMember = z.infer<typeof insertTeamMemberSchema>;
+
+// === WEBHOOKS ===
+export const webhooks = pgTable("webhooks", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  type: text("type").notNull(), // 'slack', 'discord', 'pagerduty', 'teams', 'generic'
+  events: jsonb("events").notNull(), // ['alert.created', 'alert.resolved', 'incident.created']
+  headers: jsonb("headers"), // Custom headers
+  isActive: boolean("is_active").default(true),
+  secret: text("secret"), // For signature verification
+  lastTriggeredAt: timestamp("last_triggered_at"),
+  failureCount: integer("failure_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertWebhookSchema = createInsertSchema(webhooks).omit({
+  id: true,
+  lastTriggeredAt: true,
+  failureCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Webhook = typeof webhooks.$inferSelect;
+export type InsertWebhook = z.infer<typeof insertWebhookSchema>;
+
+// === NOTIFICATION CHANNELS ===
+export const notificationChannels = pgTable("notification_channels", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // 'email', 'slack', 'pagerduty', 'discord', 'webhook'
+  config: jsonb("config").notNull(), // Channel-specific configuration
+  isDefault: boolean("is_default").default(false),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertNotificationChannelSchema = createInsertSchema(notificationChannels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type NotificationChannel = typeof notificationChannels.$inferSelect;
+export type InsertNotificationChannel = z.infer<typeof insertNotificationChannelSchema>;
+
+// === REPORT SCHEDULES ===
+export const reportSchedules = pgTable("report_schedules", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  dashboardId: integer("dashboard_id").references(() => dashboards.id),
+  frequency: text("frequency").notNull(), // 'daily', 'weekly', 'monthly'
+  recipients: jsonb("recipients").notNull(), // Array of email addresses
+  format: text("format").default("pdf"), // 'pdf', 'csv', 'json'
+  isActive: boolean("is_active").default(true),
+  lastSentAt: timestamp("last_sent_at"),
+  nextSendAt: timestamp("next_send_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertReportScheduleSchema = createInsertSchema(reportSchedules).omit({
+  id: true,
+  lastSentAt: true,
+  nextSendAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ReportSchedule = typeof reportSchedules.$inferSelect;
+export type InsertReportSchedule = z.infer<typeof insertReportScheduleSchema>;
+
 // === API CONTRACT TYPES ===
 export type CreateDashboardRequest = InsertDashboard;
 export type UpdateDashboardRequest = Partial<InsertDashboard>;
@@ -399,3 +513,9 @@ export type UpdateDataSourceRequest = Partial<InsertDataSource>;
 
 export type CreateAlertRequest = InsertAlert;
 export type UpdateAlertRequest = Partial<InsertAlert>;
+
+export type CreateWebhookRequest = InsertWebhook;
+export type UpdateWebhookRequest = Partial<InsertWebhook>;
+
+export type CreateTeamRequest = InsertTeam;
+export type UpdateTeamRequest = Partial<InsertTeam>;
