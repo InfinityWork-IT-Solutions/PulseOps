@@ -210,8 +210,292 @@ export async function registerRoutes(
     res.status(204).send();
   });
 
+  // === Saved Queries ===
+  app.get("/api/saved-queries", async (_req, res) => {
+    const queries = await storage.getSavedQueries();
+    res.json(queries);
+  });
+
+  app.post("/api/saved-queries", async (req, res) => {
+    try {
+      const query = await storage.createSavedQuery(req.body);
+      res.status(201).json(query);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to save query" });
+    }
+  });
+
+  app.delete("/api/saved-queries/:id", async (req, res) => {
+    await storage.deleteSavedQuery(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Dashboard Shares ===
+  app.get("/api/dashboards/:dashboardId/shares", async (req, res) => {
+    const shares = await storage.getDashboardShares(Number(req.params.dashboardId));
+    res.json(shares);
+  });
+
+  app.get("/api/share/:token", async (req, res) => {
+    const share = await storage.getDashboardShareByToken(req.params.token);
+    if (!share || !share.isActive) {
+      return res.status(404).json({ message: "Share link not found or expired" });
+    }
+    if (share.expiresAt && new Date(share.expiresAt) < new Date()) {
+      return res.status(410).json({ message: "Share link has expired" });
+    }
+    const dashboard = await storage.getDashboard(share.dashboardId!);
+    const panels = await storage.getPanels(share.dashboardId!);
+    res.json({ dashboard, panels });
+  });
+
+  app.post("/api/dashboards/:dashboardId/shares", async (req, res) => {
+    const token = generateShareToken();
+    const share = await storage.createDashboardShare({
+      dashboardId: Number(req.params.dashboardId),
+      shareToken: token,
+      expiresAt: req.body.expiresAt ? new Date(req.body.expiresAt) : null,
+      isActive: true,
+    });
+    res.status(201).json(share);
+  });
+
+  app.delete("/api/shares/:id", async (req, res) => {
+    await storage.deleteDashboardShare(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Alert Templates ===
+  app.get("/api/alert-templates", async (_req, res) => {
+    const templates = await storage.getAlertTemplates();
+    res.json(templates);
+  });
+
+  app.post("/api/alert-templates", async (req, res) => {
+    try {
+      const template = await storage.createAlertTemplate(req.body);
+      res.status(201).json(template);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create template" });
+    }
+  });
+
+  app.delete("/api/alert-templates/:id", async (req, res) => {
+    await storage.deleteAlertTemplate(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Incident Timelines ===
+  app.get("/api/incidents/:incidentId/timeline", async (req, res) => {
+    const timeline = await storage.getIncidentTimeline(req.params.incidentId);
+    res.json(timeline);
+  });
+
+  app.post("/api/incidents/:incidentId/timeline", async (req, res) => {
+    const event = await storage.addTimelineEvent({
+      incidentId: req.params.incidentId,
+      eventType: req.body.eventType,
+      eventData: req.body.eventData,
+      userId: req.body.userId,
+      userName: req.body.userName,
+      timestamp: new Date(),
+    });
+    res.status(201).json(event);
+  });
+
+  // === On-Call Schedules ===
+  app.get("/api/on-call", async (_req, res) => {
+    const schedules = await storage.getOnCallSchedules();
+    res.json(schedules);
+  });
+
+  app.get("/api/on-call/:id", async (req, res) => {
+    const schedule = await storage.getOnCallSchedule(Number(req.params.id));
+    if (!schedule) {
+      return res.status(404).json({ message: "Schedule not found" });
+    }
+    res.json(schedule);
+  });
+
+  app.post("/api/on-call", async (req, res) => {
+    try {
+      const schedule = await storage.createOnCallSchedule(req.body);
+      res.status(201).json(schedule);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create schedule" });
+    }
+  });
+
+  app.put("/api/on-call/:id", async (req, res) => {
+    const schedule = await storage.updateOnCallSchedule(Number(req.params.id), req.body);
+    res.json(schedule);
+  });
+
+  app.delete("/api/on-call/:id", async (req, res) => {
+    await storage.deleteOnCallSchedule(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Escalation Policies ===
+  app.get("/api/escalation-policies", async (_req, res) => {
+    const policies = await storage.getEscalationPolicies();
+    res.json(policies);
+  });
+
+  app.post("/api/escalation-policies", async (req, res) => {
+    try {
+      const policy = await storage.createEscalationPolicy(req.body);
+      res.status(201).json(policy);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create policy" });
+    }
+  });
+
+  app.put("/api/escalation-policies/:id", async (req, res) => {
+    const policy = await storage.updateEscalationPolicy(Number(req.params.id), req.body);
+    res.json(policy);
+  });
+
+  app.delete("/api/escalation-policies/:id", async (req, res) => {
+    await storage.deleteEscalationPolicy(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === SLOs ===
+  app.get("/api/slos", async (_req, res) => {
+    const sloList = await storage.getSlos();
+    res.json(sloList);
+  });
+
+  app.get("/api/slos/:id", async (req, res) => {
+    const slo = await storage.getSlo(Number(req.params.id));
+    if (!slo) {
+      return res.status(404).json({ message: "SLO not found" });
+    }
+    res.json(slo);
+  });
+
+  app.post("/api/slos", async (req, res) => {
+    try {
+      const slo = await storage.createSlo(req.body);
+      res.status(201).json(slo);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create SLO" });
+    }
+  });
+
+  app.put("/api/slos/:id", async (req, res) => {
+    const slo = await storage.updateSlo(Number(req.params.id), req.body);
+    res.json(slo);
+  });
+
+  app.delete("/api/slos/:id", async (req, res) => {
+    await storage.deleteSlo(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // === Traces (APM) ===
+  app.get("/api/traces", async (_req, res) => {
+    const traceList = await storage.getTraces();
+    res.json(traceList);
+  });
+
+  app.get("/api/traces/:traceId", async (req, res) => {
+    const trace = await storage.getTrace(req.params.traceId);
+    if (!trace) {
+      return res.status(404).json({ message: "Trace not found" });
+    }
+    const traceSpans = await storage.getSpansByTraceId(req.params.traceId);
+    res.json({ trace, spans: traceSpans });
+  });
+
+  app.post("/api/traces", async (req, res) => {
+    try {
+      const trace = await storage.createTrace(req.body);
+      res.status(201).json(trace);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create trace" });
+    }
+  });
+
+  app.post("/api/spans", async (req, res) => {
+    try {
+      const span = await storage.createSpan(req.body);
+      res.status(201).json(span);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create span" });
+    }
+  });
+
+  // === Postmortems ===
+  app.get("/api/postmortems", async (_req, res) => {
+    const postmortemList = await storage.getPostmortems();
+    res.json(postmortemList);
+  });
+
+  app.get("/api/postmortems/:id", async (req, res) => {
+    const postmortem = await storage.getPostmortem(Number(req.params.id));
+    if (!postmortem) {
+      return res.status(404).json({ message: "Postmortem not found" });
+    }
+    res.json(postmortem);
+  });
+
+  app.get("/api/incidents/:incidentId/postmortem", async (req, res) => {
+    const postmortem = await storage.getPostmortemByIncident(req.params.incidentId);
+    if (!postmortem) {
+      return res.status(404).json({ message: "Postmortem not found" });
+    }
+    res.json(postmortem);
+  });
+
+  app.post("/api/postmortems", async (req, res) => {
+    try {
+      const postmortem = await storage.createPostmortem(req.body);
+      res.status(201).json(postmortem);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create postmortem" });
+    }
+  });
+
+  app.put("/api/postmortems/:id", async (req, res) => {
+    const postmortem = await storage.updatePostmortem(Number(req.params.id), req.body);
+    res.json(postmortem);
+  });
+
+  // === Signal Correlations ===
+  app.get("/api/correlations", async (_req, res) => {
+    const correlations = await storage.getSignalCorrelations();
+    res.json(correlations);
+  });
+
+  app.get("/api/correlations/:correlationId", async (req, res) => {
+    const correlation = await storage.getSignalCorrelation(req.params.correlationId);
+    if (!correlation) {
+      return res.status(404).json({ message: "Correlation not found" });
+    }
+    res.json(correlation);
+  });
+
+  app.post("/api/correlations", async (req, res) => {
+    try {
+      const correlation = await storage.createSignalCorrelation(req.body);
+      res.status(201).json(correlation);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create correlation" });
+    }
+  });
+
+  app.put("/api/correlations/:correlationId", async (req, res) => {
+    const correlation = await storage.updateSignalCorrelation(req.params.correlationId, req.body);
+    res.json(correlation);
+  });
+
   await seedDatabase();
   await seedAlerts();
+  await seedAlertTemplates();
+  await seedSlos();
+  await seedTraces();
 
   return httpServer;
 }
@@ -278,6 +562,16 @@ async function seedDatabase() {
   }
 }
 
+// Generate a random share token
+function generateShareToken(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 32; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 // API key validation - checks basic requirements
 // In production, this would make an actual API call to verify the key with the service
 function validateApiKey(_serviceId: string, apiKey: string): boolean {
@@ -336,6 +630,204 @@ async function seedAlerts() {
       status: "resolved",
       thresholdValue: 500,
       currentValue: 450,
+    });
+  }
+}
+
+async function seedAlertTemplates() {
+  const existing = await storage.getAlertTemplates();
+  if (existing.length === 0) {
+    await storage.createAlertTemplate({
+      name: "High CPU Usage",
+      description: "Alert when CPU usage exceeds threshold",
+      category: "infrastructure",
+      severity: "critical",
+      condition: { metric: "cpu_usage", operator: ">", threshold: 85 },
+      isBuiltIn: true,
+    });
+
+    await storage.createAlertTemplate({
+      name: "Memory Pressure",
+      description: "Alert when memory usage is high",
+      category: "infrastructure",
+      severity: "warning",
+      condition: { metric: "memory_usage", operator: ">", threshold: 80 },
+      isBuiltIn: true,
+    });
+
+    await storage.createAlertTemplate({
+      name: "Error Rate Spike",
+      description: "Alert when error rate exceeds normal levels",
+      category: "application",
+      severity: "critical",
+      condition: { metric: "error_rate", operator: ">", threshold: 5 },
+      isBuiltIn: true,
+    });
+
+    await storage.createAlertTemplate({
+      name: "High Latency",
+      description: "Alert when response time is slow",
+      category: "application",
+      severity: "warning",
+      condition: { metric: "p99_latency", operator: ">", threshold: 500 },
+      isBuiltIn: true,
+    });
+
+    await storage.createAlertTemplate({
+      name: "Disk Space Low",
+      description: "Alert when disk space is running low",
+      category: "infrastructure",
+      severity: "warning",
+      condition: { metric: "disk_usage", operator: ">", threshold: 90 },
+      isBuiltIn: true,
+    });
+
+    await storage.createAlertTemplate({
+      name: "Failed Login Attempts",
+      description: "Alert on suspicious login activity",
+      category: "security",
+      severity: "critical",
+      condition: { metric: "failed_logins", operator: ">", threshold: 10 },
+      isBuiltIn: true,
+    });
+  }
+}
+
+async function seedSlos() {
+  const existing = await storage.getSlos();
+  if (existing.length === 0) {
+    await storage.createSlo({
+      name: "API Availability",
+      description: "99.9% uptime for core API endpoints",
+      serviceId: "api-gateway",
+      sliType: "availability",
+      targetPercentage: 999, // 99.9%
+      windowDays: 30,
+      currentValue: 998, // 99.8%
+      errorBudgetRemaining: 72,
+      status: "healthy",
+    });
+
+    await storage.createSlo({
+      name: "Checkout Latency",
+      description: "P99 latency under 200ms for checkout flow",
+      serviceId: "checkout-service",
+      sliType: "latency",
+      targetPercentage: 950, // 95%
+      windowDays: 7,
+      currentValue: 920, // 92%
+      errorBudgetRemaining: 15,
+      status: "at_risk",
+    });
+
+    await storage.createSlo({
+      name: "Database Error Rate",
+      description: "Error rate below 0.1% for database operations",
+      serviceId: "database-cluster",
+      sliType: "error_rate",
+      targetPercentage: 999, // 99.9%
+      windowDays: 30,
+      currentValue: 1000, // 100%
+      errorBudgetRemaining: 100,
+      status: "healthy",
+    });
+
+    await storage.createSlo({
+      name: "Payment Processing",
+      description: "99.99% success rate for payment transactions",
+      serviceId: "payment-service",
+      sliType: "availability",
+      targetPercentage: 9999, // 99.99%
+      windowDays: 30,
+      currentValue: 9985, // 99.85%
+      errorBudgetRemaining: -5,
+      status: "breached",
+    });
+  }
+}
+
+async function seedTraces() {
+  const existing = await storage.getTraces();
+  if (existing.length === 0) {
+    const now = new Date();
+    
+    // Trace 1: Normal request
+    await storage.createTrace({
+      traceId: "trace-001-abc123",
+      rootSpanId: "span-001",
+      serviceName: "api-gateway",
+      operationName: "GET /api/users",
+      duration: 45,
+      status: "ok",
+      startTime: new Date(now.getTime() - 60000),
+      endTime: new Date(now.getTime() - 59955),
+      metadata: { userId: "user-123", region: "us-east-1" },
+    });
+
+    // Trace 2: Slow request
+    await storage.createTrace({
+      traceId: "trace-002-def456",
+      rootSpanId: "span-010",
+      serviceName: "checkout-service",
+      operationName: "POST /api/checkout",
+      duration: 2500,
+      status: "ok",
+      startTime: new Date(now.getTime() - 120000),
+      endTime: new Date(now.getTime() - 117500),
+      metadata: { orderId: "order-789", paymentMethod: "card" },
+    });
+
+    // Trace 3: Error request
+    await storage.createTrace({
+      traceId: "trace-003-ghi789",
+      rootSpanId: "span-020",
+      serviceName: "payment-service",
+      operationName: "POST /api/charge",
+      duration: 150,
+      status: "error",
+      startTime: new Date(now.getTime() - 180000),
+      endTime: new Date(now.getTime() - 179850),
+      metadata: { error: "Payment gateway timeout", retries: 3 },
+    });
+
+    // Add spans for trace-001
+    await storage.createSpan({
+      spanId: "span-001",
+      traceId: "trace-001-abc123",
+      parentSpanId: null,
+      serviceName: "api-gateway",
+      operationName: "GET /api/users",
+      duration: 45,
+      status: "ok",
+      startTime: new Date(now.getTime() - 60000),
+      endTime: new Date(now.getTime() - 59955),
+      tags: { "http.method": "GET", "http.status_code": 200 },
+    });
+
+    await storage.createSpan({
+      spanId: "span-002",
+      traceId: "trace-001-abc123",
+      parentSpanId: "span-001",
+      serviceName: "user-service",
+      operationName: "getUserById",
+      duration: 25,
+      status: "ok",
+      startTime: new Date(now.getTime() - 59990),
+      endTime: new Date(now.getTime() - 59965),
+      tags: { "db.type": "postgres", "db.statement": "SELECT * FROM users" },
+    });
+
+    await storage.createSpan({
+      spanId: "span-003",
+      traceId: "trace-001-abc123",
+      parentSpanId: "span-002",
+      serviceName: "cache",
+      operationName: "redis.get",
+      duration: 5,
+      status: "ok",
+      startTime: new Date(now.getTime() - 59985),
+      endTime: new Date(now.getTime() - 59980),
+      tags: { "cache.hit": true },
     });
   }
 }
