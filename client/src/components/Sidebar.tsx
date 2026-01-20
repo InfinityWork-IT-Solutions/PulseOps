@@ -57,7 +57,19 @@ export function Sidebar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-2 bg-background/50 rounded-md border border-border/50 text-muted-foreground text-sm cursor-pointer hover:border-border transition-colors" data-testid="button-command-palette">
+        <div 
+          className="flex items-center gap-2 px-3 py-2 bg-background/50 rounded-md border border-border/50 text-muted-foreground text-sm cursor-pointer hover:border-border transition-colors" 
+          data-testid="button-command-palette"
+          onClick={() => {
+            const event = new KeyboardEvent('keydown', {
+              key: 'k',
+              metaKey: true,
+              ctrlKey: true,
+              bubbles: true
+            });
+            document.dispatchEvent(event);
+          }}
+        >
           <Command className="w-4 h-4" />
           <span className="flex-1">Search...</span>
           <kbd className="text-xs bg-card px-1.5 py-0.5 rounded">⌘K</kbd>
