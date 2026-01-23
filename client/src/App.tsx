@@ -26,6 +26,8 @@ import OnCall from "@/pages/OnCall";
 import SLOs from "@/pages/SLOs";
 import Traces from "@/pages/Traces";
 import Correlations from "@/pages/Correlations";
+import Teams from "@/pages/Teams";
+import Webhooks from "@/pages/Webhooks";
 
 function SplashScreen() {
   return (
@@ -78,6 +80,8 @@ function Router() {
       <Route path="/slos" component={SLOs} />
       <Route path="/traces" component={Traces} />
       <Route path="/correlations" component={Correlations} />
+      <Route path="/teams" component={Teams} />
+      <Route path="/webhooks" component={Webhooks} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>

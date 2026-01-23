@@ -31,7 +31,7 @@ export default function Teams() {
 
   const createTeamMutation = useMutation({
     mutationFn: async (team: typeof newTeam) => {
-      return apiRequest("/api/teams", { method: "POST", body: JSON.stringify(team) });
+      return apiRequest("POST", "/api/teams", team);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
@@ -42,10 +42,7 @@ export default function Teams() {
 
   const addMemberMutation = useMutation({
     mutationFn: async (member: typeof newMember) => {
-      return apiRequest(`/api/teams/${selectedTeam?.id}/members`, { 
-        method: "POST", 
-        body: JSON.stringify(member) 
-      });
+      return apiRequest("POST", `/api/teams/${selectedTeam?.id}/members`, member);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams", selectedTeam?.id, "members"] });
@@ -56,7 +53,7 @@ export default function Teams() {
 
   const removeMemberMutation = useMutation({
     mutationFn: async (memberId: number) => {
-      return apiRequest(`/api/team-members/${memberId}`, { method: "DELETE" });
+      return apiRequest("DELETE", `/api/team-members/${memberId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams", selectedTeam?.id, "members"] });
@@ -65,7 +62,7 @@ export default function Teams() {
 
   const deleteTeamMutation = useMutation({
     mutationFn: async (teamId: number) => {
-      return apiRequest(`/api/teams/${teamId}`, { method: "DELETE" });
+      return apiRequest("DELETE", `/api/teams/${teamId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams"] });

@@ -98,7 +98,9 @@ export default function LogsViewer() {
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const [selectedService, setSelectedService] = useState<string>("all");
   const [isLive, setIsLive] = useState(true);
+  const [refreshInterval, setRefreshInterval] = useState("3");
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -118,10 +120,11 @@ export default function LogsViewer() {
         metadata: { requestId: `req-${Math.random().toString(36).substr(2, 9)}` },
       };
       setLogs((prev) => [newLog, ...prev.slice(0, 99)]);
-    }, 3000);
+      setLastRefresh(new Date());
+    }, parseInt(refreshInterval) * 1000);
 
     return () => clearInterval(interval);
-  }, [isLive]);
+  }, [isLive, refreshInterval]);
 
   const filteredLogs = logs.filter((log) => {
     const matchesSearch =
@@ -161,25 +164,35 @@ export default function LogsViewer() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
-              variant={isLive ? "default" : "outline"}
-              size="sm"
-              onClick={() => setIsLive(!isLive)}
-              className="gap-2"
-              data-testid="button-toggle-live"
-            >
-              {isLive ? (
-                <>
-                  <Pause className="w-4 h-4" />
-                  Pause
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" />
+            <div className="flex items-center gap-2 bg-background/50 rounded-md border border-border/50 px-3 py-1.5">
+              <Button
+                size="sm"
+                variant={isLive ? "default" : "ghost"}
+                onClick={() => setIsLive(!isLive)}
+                data-testid="button-toggle-live"
+                className="gap-1"
+              >
+                {isLive ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                {isLive ? "Pause" : "Live"}
+              </Button>
+              <Select value={refreshInterval} onValueChange={setRefreshInterval}>
+                <SelectTrigger className="w-[70px] text-xs" data-testid="select-log-refresh-interval">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1s</SelectItem>
+                  <SelectItem value="3">3s</SelectItem>
+                  <SelectItem value="5">5s</SelectItem>
+                  <SelectItem value="10">10s</SelectItem>
+                </SelectContent>
+              </Select>
+              {isLive && (
+                <span className="text-xs text-green-500 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                   Live
-                </>
+                </span>
               )}
-            </Button>
+            </div>
             <TimeRangeSelector />
           </div>
         </header>

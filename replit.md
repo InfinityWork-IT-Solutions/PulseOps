@@ -91,6 +91,13 @@ Entities defined in `shared/schema.ts`:
 15. **Signal Correlations** - AI-powered correlation of metrics, logs, and traces
 16. **Postmortems** - Incident review documentation with action items
 
+**Phase 4 - Team & Integration Features:**
+17. **Teams** - Team management with roles (admin, editor, viewer)
+18. **Team Members** - Team membership management with role-based access
+19. **Webhooks** - Webhook integrations for Slack, Discord, PagerDuty, Microsoft Teams
+20. **Notification Channels** - Configurable notification channels (email, Slack, PagerDuty, Discord)
+21. **Report Schedules** - Scheduled dashboard reports with PDF/CSV export
+
 ### API Structure
 Routes follow RESTful conventions:
 
@@ -111,6 +118,13 @@ Routes follow RESTful conventions:
 - `/api/spans` - Span management for traces
 - `/api/correlations` - Signal correlation management
 - `/api/postmortems` - Postmortem documentation
+
+**Team & Integration APIs:**
+- `/api/teams` - Team management CRUD
+- `/api/teams/:teamId/members` - Team member management
+- `/api/webhooks` - Webhook configuration and testing
+- `/api/notification-channels` - Notification channel management
+- `/api/report-schedules` - Scheduled report configuration
 
 ## Design System
 
@@ -191,3 +205,23 @@ PulseOps is a product developed and owned by **Infinitywork IT Solutions** (http
 - `/app/postmortems` - Postmortem Documentation
 - `/app/oncall` - On-Call Scheduling
 - `/app/saved-queries` - Saved Queries management
+- `/teams` - Team management with role-based access control
+- `/webhooks` - Webhook integrations (Slack, Discord, PagerDuty, Teams)
+
+### Version 2.1 - Team & Integration Features
+
+**Phase 4: Team Management & Webhooks**
+- **Teams Page** - Full team management with create/edit/delete functionality
+- **Team Members** - Add/remove team members with role assignment (admin/editor/viewer)
+- **Webhooks Page** - Configure webhooks for Slack, Discord, PagerDuty, Microsoft Teams, or generic endpoints
+- **Event Subscriptions** - Subscribe webhooks to events (alert.created, alert.resolved, incident.created, etc.)
+- **Webhook Testing** - Test webhook delivery with a single click
+- **Notification Channels** - View and manage notification channel configurations
+
+**Auto-Refresh Enhancements**
+- **Metrics Explorer** - Added auto-refresh toggle with configurable intervals (5s, 10s, 30s, 1m, 5m)
+- **Logs Viewer** - Enhanced live streaming with configurable refresh intervals (1s, 3s, 5s, 10s)
+- **Visual Indicators** - Live streaming indicator with pulsing green dot
+
+**Navigation Updates**
+- Added Teams and Webhooks links to Configuration section in sidebar

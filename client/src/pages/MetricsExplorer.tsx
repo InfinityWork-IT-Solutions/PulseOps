@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { TimeRangeSelector } from "@/components/TimeRangeSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,8 @@ import {
   TrendingDown,
   Minus,
   Copy,
+  RefreshCw,
+  Pause,
 } from "lucide-react";
 import {
   LineChart,
@@ -64,7 +66,21 @@ export default function MetricsExplorer() {
     { id: 2, metric: "system.memory.used", label: "Memory", color: "#10b981" },
   ]);
   const [selectedMetric, setSelectedMetric] = useState("");
-  const [chartData] = useState(generateTimeSeriesData);
+  const [chartData, setChartData] = useState(generateTimeSeriesData);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState("30");
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  const refreshData = useCallback(() => {
+    setChartData(generateTimeSeriesData());
+    setLastRefresh(new Date());
+  }, []);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(refreshData, parseInt(refreshInterval) * 1000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, refreshInterval, refreshData]);
 
   const addQuery = () => {
     if (!selectedMetric) return;
@@ -104,7 +120,35 @@ export default function MetricsExplorer() {
               </p>
             </div>
           </div>
-          <TimeRangeSelector />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-background/50 rounded-md border border-border/50 px-3 py-1.5">
+              <Button
+                size="sm"
+                variant={autoRefresh ? "default" : "ghost"}
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                data-testid="button-auto-refresh"
+              >
+                {autoRefresh ? <Pause className="w-3 h-3 mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}
+                {autoRefresh ? "Pause" : "Auto"}
+              </Button>
+              <Select value={refreshInterval} onValueChange={setRefreshInterval}>
+                <SelectTrigger className="w-[80px] text-xs" data-testid="select-refresh-interval">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5s</SelectItem>
+                  <SelectItem value="10">10s</SelectItem>
+                  <SelectItem value="30">30s</SelectItem>
+                  <SelectItem value="60">1m</SelectItem>
+                  <SelectItem value="300">5m</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button size="icon" variant="ghost" onClick={refreshData} data-testid="button-refresh">
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
+            <TimeRangeSelector />
+          </div>
         </header>
 
         <div className="p-8 space-y-6">

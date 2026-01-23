@@ -63,10 +63,7 @@ export default function Webhooks() {
 
   const createWebhookMutation = useMutation({
     mutationFn: async (webhook: typeof newWebhook) => {
-      return apiRequest("/api/webhooks", { 
-        method: "POST", 
-        body: JSON.stringify({ ...webhook, events: selectedEvents }) 
-      });
+      return apiRequest("POST", "/api/webhooks", { ...webhook, events: selectedEvents });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/webhooks"] });
@@ -78,10 +75,7 @@ export default function Webhooks() {
 
   const toggleWebhookMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
-      return apiRequest(`/api/webhooks/${id}`, { 
-        method: "PUT", 
-        body: JSON.stringify({ isActive }) 
-      });
+      return apiRequest("PUT", `/api/webhooks/${id}`, { isActive });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/webhooks"] });
@@ -90,7 +84,7 @@ export default function Webhooks() {
 
   const deleteWebhookMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/webhooks/${id}`, { method: "DELETE" });
+      return apiRequest("DELETE", `/api/webhooks/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/webhooks"] });
@@ -99,7 +93,7 @@ export default function Webhooks() {
 
   const testWebhookMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/webhooks/${id}/test`, { method: "POST" });
+      return apiRequest("POST", `/api/webhooks/${id}/test`);
     },
   });
 

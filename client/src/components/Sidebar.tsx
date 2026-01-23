@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Database, Settings, LogOut, Bell, Activity, FileText, Network, Sparkles, Command, Plug, AlertTriangle, Code, Clock, TrendingUp, Zap, GitBranch } from "lucide-react";
+import { LayoutDashboard, Database, Settings, LogOut, Bell, Activity, FileText, Network, Sparkles, Command, Plug, AlertTriangle, Code, Clock, TrendingUp, Zap, GitBranch, Users, Webhook } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAlerts } from "@/hooks/use-alerts";
 
@@ -171,10 +171,22 @@ export function Sidebar() {
         <SectionLabel>Configuration</SectionLabel>
         <div className="space-y-1">
           <NavItem 
+            href="/teams" 
+            icon={Users} 
+            label="Teams" 
+            active={location === "/teams"} 
+          />
+          <NavItem 
             href="/on-call" 
             icon={Clock} 
             label="On-Call Management" 
             active={location === "/on-call"} 
+          />
+          <NavItem 
+            href="/webhooks" 
+            icon={Webhook} 
+            label="Webhooks" 
+            active={location === "/webhooks"} 
           />
           <NavItem 
             href="/integrations" 
