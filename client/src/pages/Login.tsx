@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { apiRequest } from "@/lib/queryClient";
 
 interface FloatingElement {
   id: number;
@@ -71,14 +72,38 @@ export default function Login() {
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
-  const handleSignIn = (data: SignInFormData) => {
-    toast({ title: "Welcome back!", description: "Redirecting to dashboard..." });
-    setTimeout(() => setLocation("/app"), 1500);
+  const handleSignIn = async (data: SignInFormData) => {
+    try {
+      const response = await apiRequest("POST", "/api/login", data);
+      const result = await response.json();
+      if (result.success) {
+        toast({ title: "Welcome back!", description: "Redirecting to dashboard..." });
+        setTimeout(() => setLocation("/app"), 1500);
+      }
+    } catch (error) {
+      toast({ 
+        title: "Login failed", 
+        description: "Invalid credentials. Please try again.",
+        variant: "destructive" 
+      });
+    }
   };
 
-  const handleSignUp = (data: SignUpFormData) => {
-    toast({ title: "Account created!", description: "Welcome to PulseOps! Redirecting..." });
-    setTimeout(() => setLocation("/app"), 1500);
+  const handleSignUp = async (data: SignUpFormData) => {
+    try {
+      const response = await apiRequest("POST", "/api/register", data);
+      const result = await response.json();
+      if (result.success) {
+        toast({ title: "Account created!", description: "Welcome to PulseOps! Redirecting..." });
+        setTimeout(() => setLocation("/app"), 1500);
+      }
+    } catch (error) {
+      toast({ 
+        title: "Registration failed", 
+        description: "Could not create account. Please try again.",
+        variant: "destructive" 
+      });
+    }
   };
 
   return (

@@ -660,6 +660,35 @@ export async function registerRoutes(
     res.status(204).send();
   });
 
+  app.post("/api/login", async (req, res) => {
+    const { email, password } = req.body;
+    // Simple mock authentication for demonstration
+    // In a real app, you'd verify the password hash
+    const user = await storage.getUserByEmail(email);
+    if (!user) {
+      // Create user if they don't exist for the demo
+      const newUser = await storage.createUser({
+        email,
+        firstName: email.split('@')[0],
+      });
+      return res.json({ success: true, user: newUser });
+    }
+    res.json({ success: true, user });
+  });
+
+  app.post("/api/register", async (req, res) => {
+    const { email, name, password } = req.body;
+    const existing = await storage.getUserByEmail(email);
+    if (existing) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+    const user = await storage.createUser({
+      email,
+      firstName: name,
+    });
+    res.status(201).json({ success: true, user });
+  });
+
   await seedDatabase();
   await seedAlerts();
   await seedAlertTemplates();

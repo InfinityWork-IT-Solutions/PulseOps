@@ -129,6 +129,10 @@ export interface IStorage {
   updateTeam(id: number, updates: Partial<InsertTeam>): Promise<Team>;
   deleteTeam(id: number): Promise<void>;
 
+  // Users
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: UpsertUser): Promise<User>;
+
   // Team Members
   getTeamMembers(teamId: number): Promise<TeamMember[]>;
   addTeamMember(member: InsertTeamMember): Promise<TeamMember>;
@@ -528,6 +532,17 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTeam(id: number): Promise<void> {
     await db.delete(teams).where(eq(teams.id, id));
+  }
+
+  // Users
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(user: UpsertUser): Promise<User> {
+    const [created] = await db.insert(users).values(user).returning();
+    return created;
   }
 
   // Team Members
